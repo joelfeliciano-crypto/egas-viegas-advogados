@@ -12,19 +12,19 @@ import type { ContactMessage } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 async function loadMessages(): Promise<ContactMessage[]> {
-  const snap = await getDocs(query(collection(db, "messages"), orderBy("createdAt", "desc")))
+  const snap = await getDocs(query(collection(db, "contacts"), orderBy("timestamp", "desc")))
   return snap.docs.map((d) => ({ ...(serialize(d.data()) as object), id: d.id }) as ContactMessage)
 }
 
 export default function MessagesPage() {
-  const { data, error, isLoading, mutate } = useSWR("messages", loadMessages)
+  const { data, error, isLoading, mutate } = useSWR("contacts", loadMessages)
   const [openId, setOpenId] = useState<string | null>(null)
   const selected = data?.find((m) => m.id === openId)
 
   async function openMessage(m: ContactMessage) {
     setOpenId(m.id)
     if (!m.read) {
-      await updateDoc(doc(db, "messages", m.id), { read: true }).catch(console.error)
+      await updateDoc(doc(db, "contacts", m.id), { read: true }).catch(console.error)
       mutate(data?.map((x) => (x.id === m.id ? { ...x, read: true } : x)), { revalidate: false })
     }
   }
@@ -32,7 +32,7 @@ export default function MessagesPage() {
   async function remove(id: string) {
     if (!confirm("Eliminar esta mensagem?")) return
     try {
-      await deleteDoc(doc(db, "messages", id))
+      await deleteDoc(doc(db, "contacts", id))
       setOpenId(null)
       mutate()
       toast.success("Mensagem eliminada.")
@@ -64,7 +64,7 @@ export default function MessagesPage() {
                   {!m.read && <span className="size-2 rounded-full bg-accent" aria-label="Por ler" />}
                   <span className={cn("truncate", !m.read && "font-semibold")}>{m.name}</span>
                   <span className="ml-auto shrink-0 text-xs text-muted-foreground">
-                    {m.createdAt ? new Date(m.createdAt).toLocaleDateString("pt-PT") : ""}
+                    {m.timestamp ? new Date(m.timestamp).toLocaleDateString("pt-PT") : ""}
                   </span>
                 </span>
                 <span className="truncate text-sm">{m.subject}</span>
@@ -82,8 +82,8 @@ export default function MessagesPage() {
                 {selected.name}
                 {selected.company && ` · ${selected.company}`} · {selected.area}
               </p>
-              {selected.createdAt && (
-                <p className="text-xs text-muted-foreground">{new Date(selected.createdAt).toLocaleString("pt-PT")}</p>
+              {selected.timestamp && (
+                <p className="text-xs text-muted-foreground">{new Date(selected.timestamp).toLocaleString("pt-PT")}</p>
               )}
             </div>
             <p className="whitespace-pre-wrap leading-relaxed">{selected.message}</p>

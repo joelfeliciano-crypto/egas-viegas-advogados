@@ -20,7 +20,7 @@ export function ContactForm({ areas }: { areas: string[] }) {
     const clean = (v: string | undefined, max: number) => (v ?? "").trim().slice(0, max)
     setSending(true)
     try {
-      await addDoc(collection(db, "messages"), {
+      await addDoc(collection(db, "contacts"), {
         name: clean(data.name, 120),
         email: clean(data.email, 160),
         phone: clean(data.phone, 40),
@@ -29,7 +29,7 @@ export function ContactForm({ areas }: { areas: string[] }) {
         subject: clean(data.subject, 200),
         message: clean(data.message, 5000),
         read: false,
-        createdAt: serverTimestamp(),
+        timestamp: serverTimestamp(),
       })
       form.reset()
       setSent(true)

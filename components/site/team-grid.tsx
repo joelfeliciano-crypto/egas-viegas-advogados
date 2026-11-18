@@ -17,8 +17,8 @@ export function TeamGrid({ team }: { team: TeamMember[] }) {
     return () => window.removeEventListener("keydown", onKey)
   }, [selected])
 
-  const categories = TEAM_CATEGORIES.filter((c) => team.some((m) => m.categoria === c.value))
-  const visible = filter === "all" ? team : team.filter((m) => m.categoria === filter)
+  const categories = TEAM_CATEGORIES.filter((c) => team.some((m) => m.section === c.value))
+  const visible = filter === "all" ? team : team.filter((m) => m.section === filter)
 
   return (
     <>
@@ -47,7 +47,7 @@ export function TeamGrid({ team }: { team: TeamMember[] }) {
               onClick={() => setSelected(m)}
               className="group flex w-full flex-col overflow-hidden rounded-xl border bg-card text-left transition-shadow hover:shadow-lg"
             >
-              <Avatar name={m.nome} src={m.imgUrl} className="aspect-square w-full" />
+              <Avatar name={m.nome} src={m.img} className="aspect-square w-full" />
               <span className="flex flex-col p-5">
                 <span className="font-serif text-lg font-semibold group-hover:text-gold-ink">{m.nome}</span>
                 <span className="text-sm text-muted-foreground">{m.cargo}</span>
@@ -83,7 +83,7 @@ export function TeamGrid({ team }: { team: TeamMember[] }) {
               <X className="size-5" />
             </button>
             <div className="grid md:grid-cols-[220px_1fr]">
-              <Avatar name={selected.nome} src={selected.imgUrl} className="aspect-square w-full md:h-full" />
+              <Avatar name={selected.nome} src={selected.img} className="aspect-square w-full md:h-full" />
               <div className="p-6">
                 <h2 id="member-name" className="font-serif text-2xl font-semibold">
                   {selected.nome}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Eye, Scale, Target } from "lucide-react"
 import { PageHero, SectionHeading } from "@/components/site/page-hero"
+import { Counter } from "@/components/site/motion"
 import { getSettings } from "@/lib/data"
 
 export const metadata: Metadata = { title: "Sobre Nós" }
@@ -18,7 +19,7 @@ export default async function AboutPage() {
   const s = await getSettings()
   return (
     <>
-      <PageHero eyebrow="Sobre" title={s.about_title} subtitle={s.about_intro} />
+      <PageHero eyebrow="Sobre" title={s.about_title} subtitle={s.about_paragraph} />
 
       <section className="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:grid-cols-2 md:items-center">
         <div>
@@ -78,7 +79,7 @@ export default async function AboutPage() {
           {s.stats.map((st) => (
             <div key={st.label} className="flex flex-col">
               <dt className="text-sm text-primary-foreground/70">{st.label}</dt>
-              <dd className="order-first font-serif text-5xl text-accent">{st.value}</dd>
+              <Counter value={st.value} className="order-first font-serif text-5xl text-accent" />
             </div>
           ))}
         </dl>

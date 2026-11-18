@@ -15,7 +15,7 @@ const SECTIONS: { title: string; fields: Field[] }[] = [
   {
     title: "Página Inicial",
     fields: [
-      { name: "hero_title", label: "Título principal", type: "text" },
+      { name: "index_hero_title", label: "Título principal", type: "text" },
       { name: "hero_subtitle", label: "Subtítulo", type: "textarea" },
       { name: "hero_cta", label: "Texto do botão", type: "text" },
       { name: "stats", label: "Estatísticas", type: "list", hint: "Uma por linha no formato: valor | rótulo (ex.: 500+ | Casos de Sucesso)" },
@@ -25,7 +25,7 @@ const SECTIONS: { title: string; fields: Field[] }[] = [
     title: "Sobre Nós",
     fields: [
       { name: "about_title", label: "Título", type: "text" },
-      { name: "about_intro", label: "Introdução", type: "textarea" },
+      { name: "about_paragraph", label: "Introdução", type: "textarea" },
       { name: "history_p1", label: "História — parágrafo 1", type: "textarea" },
       { name: "history_p2", label: "História — parágrafo 2", type: "textarea" },
       { name: "history_p3", label: "História — parágrafo 3", type: "textarea" },

@@ -16,9 +16,9 @@ import { defaultSettings } from "@/lib/defaults"
 import { db } from "@/lib/firebase"
 
 async function loadCounts() {
-  const names = [...Object.keys(COLLECTIONS), "messages"]
+  const names = [...Object.keys(COLLECTIONS), "contacts"]
   const counts = await Promise.all(names.map((n) => getCountFromServer(collection(db, n)).then((s) => s.data().count)))
-  const unread = await getCountFromServer(query(collection(db, "messages"), where("read", "==", false)))
+  const unread = await getCountFromServer(query(collection(db, "contacts"), where("read", "==", false)))
   const settings = await getDoc(doc(db, "website_content", "general"))
   return {
     counts: Object.fromEntries(names.map((n, i) => [n, counts[i]])) as Record<string, number>,
@@ -81,7 +81,7 @@ export function Overview() {
         <Link href="/admin/mensagens" className="rounded-xl border bg-primary p-6 text-primary-foreground hover:opacity-95">
           <p className="text-sm text-primary-foreground/70">Mensagens por ler</p>
           <p className="font-serif text-4xl text-accent">{data?.unread ?? "–"}</p>
-          <p className="mt-1 text-xs text-primary-foreground/60">{data?.counts.messages ?? 0} no total</p>
+          <p className="mt-1 text-xs text-primary-foreground/60">{data?.counts.contacts ?? 0} no total</p>
         </Link>
         {Object.values(COLLECTIONS).map((c) => (
           <Link key={c.name} href={`/admin/${c.name}`} className="rounded-xl border bg-card p-6 hover:border-primary">

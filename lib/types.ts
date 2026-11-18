@@ -1,11 +1,11 @@
 export type Stat = { value: string; label: string }
 
 export type SiteSettings = {
-  hero_title: string
+  index_hero_title: string
   hero_subtitle: string
   hero_cta: string
   about_title: string
-  about_intro: string
+  about_paragraph: string
   history_p1: string
   history_p2: string
   history_p3: string
@@ -37,16 +37,16 @@ export type Area = {
   order: number
 }
 
-export type TeamCategory = "fundador" | "administrativo" | "advogados" | "estagiarios" | "assessores"
+export type TeamCategory = "founders" | "partners" | "advogados" | "estagiarios" | "associates"
 
 export type TeamMember = {
   id: string
   nome: string
   cargo: string
-  categoria: TeamCategory
+  section: TeamCategory
   especialidades: string[]
   desc: string
-  imgUrl: string
+  img: string
   order: number
 }
 
@@ -77,13 +77,13 @@ export type ContactMessage = {
   subject: string
   message: string
   read: boolean
-  createdAt?: number
+  timestamp?: number
 }
 
 export const TEAM_CATEGORIES: { value: TeamCategory; label: string }[] = [
-  { value: "fundador", label: "Fundador" },
-  { value: "administrativo", label: "Administrativo" },
+  { value: "founders", label: "Fundador" },
+  { value: "partners", label: "Administrativo" },
   { value: "advogados", label: "Advogados" },
   { value: "estagiarios", label: "Advogados Estagiários" },
-  { value: "assessores", label: "Assessores Jurídicos" },
+  { value: "associates", label: "Assessores Jurídicos" },
 ]

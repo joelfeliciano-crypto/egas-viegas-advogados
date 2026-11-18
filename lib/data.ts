@@ -51,8 +51,36 @@ export async function getSettings(): Promise<SiteSettings> {
 }
 
 export const getAreas = () => getCollection<Area>("areas", defaultAreas)
-export const getTeam = () => getCollection<TeamMember>("team", defaultTeam)
-export const getArticles = () => getCollection<Article>("articles", defaultArticles)
+const LEGACY_SECTIONS: Record<string, TeamMember["section"]> = {
+  fundador: "founders",
+  administrativo: "partners",
+  assessores: "associates",
+}
+
+export async function getTeam(): Promise<TeamMember[]> {
+  const rows = await getCollection<TeamMember & { categoria?: string; imgUrl?: string; descricao?: string }>(
+    "membros",
+    defaultTeam,
+  )
+  return rows.map(({ categoria, imgUrl, descricao, ...m }) => {
+    const raw = m.section ?? categoria ?? "advogados"
+    return {
+      ...m,
+      section: LEGACY_SECTIONS[raw] ?? raw,
+      img: m.img || imgUrl || "",
+      desc: m.desc || descricao || "",
+      especialidades: Array.isArray(m.especialidades) ? m.especialidades : [],
+    }
+  })
+}
+
+export async function getArticles(): Promise<Article[]> {
+  const rows = await getCollection<Omit<Article, "data"> & { id: string; data: string | number }>("artigos", defaultArticles)
+  return rows.map((a) => ({
+    ...a,
+    data: typeof a.data === "number" ? new Date(a.data).toLocaleDateString("pt-PT") : (a.data ?? ""),
+  }))
+}
 export const getVideos = () => getCollection<Video>("videos", defaultVideos)
 export const getThoughts = () => getCollection<Thought>("thoughts", defaultThoughts)
 export const getTestimonials = () => getCollection<Testimonial>("testimonials", defaultTestimonials)

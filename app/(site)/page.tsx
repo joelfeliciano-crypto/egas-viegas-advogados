@@ -1,5 +1,7 @@
 import Link from "next/link"
-import { ArrowRight, Quote } from "lucide-react"
+import { ArrowRight } from "lucide-react"
+import { Counter, Reveal } from "@/components/site/motion"
+import { TestimonialsSlider } from "@/components/site/testimonials-slider"
 import { buttonVariants } from "@/components/ui/button"
 import { SectionHeading } from "@/components/site/page-hero"
 import { ArticleCard } from "@/components/site/article-card"
@@ -29,7 +31,7 @@ export default async function HomePage() {
         <div className="mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-4 py-24">
           <p className="mb-4 text-xs uppercase tracking-[0.35em] text-accent">EV - Sociedade de Advogados, RL</p>
           <h1 className="max-w-3xl text-balance font-serif text-5xl font-semibold leading-tight md:text-7xl">
-            {settings.hero_title}
+            {settings.index_hero_title}
           </h1>
           <p className="mt-6 max-w-xl text-pretty text-lg text-primary-foreground/75">{settings.hero_subtitle}</p>
           <div className="mt-10 flex flex-wrap gap-3">
@@ -58,7 +60,7 @@ export default async function HomePage() {
           {settings.stats.map((s) => (
             <div key={s.label} className="rounded-xl border bg-card p-6">
               <dt className="text-sm text-muted-foreground">{s.label}</dt>
-              <dd className="order-first font-serif text-4xl font-semibold text-gold-ink">{s.value}</dd>
+              <Counter value={s.value} className="order-first font-serif text-4xl font-semibold text-gold-ink" />
             </div>
           ))}
         </dl>
@@ -84,9 +86,11 @@ export default async function HomePage() {
         <SectionHeading eyebrow="03 — Especialidades" title="Áreas de Actuação" subtitle="Soluções jurídicas especializadas para cada necessidade." />
         <ul className="grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-3">
           {areas.slice(0, 6).map((a) => (
-            <li key={a.id} className="bg-card p-6">
-              <h3 className="font-serif text-xl font-semibold">{a.title}</h3>
-              <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{a.intro}</p>
+            <li key={a.id} className="bg-card">
+              <Reveal className="h-full p-6">
+                <h3 className="font-serif text-xl font-semibold">{a.title}</h3>
+                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{a.intro}</p>
+              </Reveal>
             </li>
           ))}
         </ul>
@@ -111,18 +115,7 @@ export default async function HomePage() {
       {testimonials.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-20">
           <SectionHeading eyebrow="05 — Avaliações" title="O que dizem os nossos clientes" />
-          <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <figure key={t.id} className="flex flex-col rounded-xl border bg-card p-6">
-                <Quote className="size-6 text-accent" aria-hidden />
-                <blockquote className="mt-3 flex-1 text-pretty leading-relaxed">{t.texto}</blockquote>
-                <figcaption className="mt-5 text-sm">
-                  <span className="font-semibold">{t.autor}</span>
-                  {t.cargo && <span className="block text-muted-foreground">{t.cargo}</span>}
-                </figcaption>
-              </figure>
-            ))}
-          </div>
+          <TestimonialsSlider items={testimonials} />
         </section>
       )}
 
