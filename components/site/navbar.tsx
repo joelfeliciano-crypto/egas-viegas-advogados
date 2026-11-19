@@ -27,7 +27,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-primary/95 backdrop-blur">
-      <nav className="mx-auto flex h-18 max-w-6xl items-center justify-between px-4 py-3" aria-label="Principal">
+      <nav className="mx-auto flex h-18 max-w-6xl items-center justify-between px-4 py-3" aria-label="Principal" style={{ color: "#000000" }}>
         <Logo light />
         <ul className="hidden items-center gap-7 lg:flex">
           {NAV_LINKS.map((link) => {
