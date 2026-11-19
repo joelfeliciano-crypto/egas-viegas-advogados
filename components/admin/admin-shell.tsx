@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { auth } from "@/lib/firebase-auth"
 import { cn } from "@/lib/utils"
+import { Logo } from "@/components/site/navbar"
 import { adminInput } from "./field-input"
 
 const NAV = [
@@ -55,8 +56,8 @@ function LoginForm() {
   return (
     <main className="flex min-h-screen items-center justify-center bg-primary p-4">
       <form onSubmit={onSubmit} className="flex w-full max-w-sm flex-col gap-4 rounded-xl bg-card p-8">
-        <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-gold-ink">Egas Viegas</p>
+        <div className="flex flex-col gap-4">
+          <Logo />
           <h1 className="font-serif text-3xl font-semibold">Painel de Gestão</h1>
           <p className="mt-1 text-sm text-muted-foreground">Inicie sessão com a sua conta Firebase.</p>
         </div>
@@ -98,8 +99,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-secondary md:flex-row">
       <aside className="flex shrink-0 flex-col bg-primary text-primary-foreground md:sticky md:top-0 md:h-screen md:w-64">
-        <div className="p-5">
-          <p className="text-[10px] uppercase tracking-[0.3em] text-accent">Egas Viegas</p>
+        <div className="flex flex-col gap-3 p-5">
+          <Logo light />
           <p className="font-serif text-xl">Painel de Gestão</p>
         </div>
         <nav aria-label="Painel" className="flex-1 overflow-x-auto md:overflow-y-auto">

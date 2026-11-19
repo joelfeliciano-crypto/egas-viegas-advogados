@@ -10,9 +10,11 @@ import { cn } from "@/lib/utils"
 export function Logo({ light = false }: { light?: boolean }) {
   return (
     <Link href="/" className="flex items-center gap-3" aria-label="Egas Viegas - Início">
-      <span className="flex size-10 items-center justify-center rounded-full border border-accent font-serif text-lg font-semibold text-accent">
-        EV
-      </span>
+      <img
+        src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/evlogo1.jfif-dlF5HLMabuT5alyVWTMgjo4AbualZk.jpeg"
+        alt="Logótipo Egas Viegas"
+        className="h-11 w-12 shrink-0 object-contain"
+      />
       <span className={cn("flex flex-col leading-tight", light ? "text-primary-foreground" : "text-foreground")}>
         <span className="font-serif text-lg font-semibold tracking-wide">Egas Viegas</span>
         <span className="text-[10px] uppercase tracking-[0.25em] opacity-70">Sociedade de Advogados</span>
