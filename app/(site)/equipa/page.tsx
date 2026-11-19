@@ -9,7 +9,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale()
   const english = locale === "en"
   return {
-    title: english ? "Our Team | Egas Viegas Law Firm" : "Profissionais | Egas Viegas Advogados",
+    title: english ? "Our Team" : "Profissionais",
+    alternates: { canonical: "/equipa" },
     description: english
       ? "Meet our experienced team of legal professionals at Egas Viegas. Expert attorneys specializing in various areas of law in Angola."
       : "Conheça a nossa equipa de profissionais jurídicos experientes na Egas Viegas. Advogados especializados em várias áreas do direito em Angola.",

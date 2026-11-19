@@ -7,12 +7,13 @@ import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
+const siteUrl = "https://egas-viegas-advogados.vercel.app"
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale()
   const english = locale === "en"
   const logo = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/evlogo1.jfif-dlF5HLMabuT5alyVWTMgjo4AbualZk.jpeg"
-  const baseUrl = "https://egas-viegas-advogados.vercel.app"
+
   return {
     title: {
       default: english ? "Egas Viegas | Law Firm, RL" : "Egas Viegas | Sociedade de Advogados, RL",
@@ -27,11 +28,11 @@ export async function generateMetadata(): Promise<Metadata> {
     icons: { icon: logo, shortcut: logo, apple: logo },
     verification: { google: "2swuBHVfQ3vxyhw4cJ-ML5NtnyETGKFLP208Zzci-2Y" },
     generator: "v0.app",
-    metadataBase: new URL(baseUrl),
+    metadataBase: new URL(siteUrl),
     openGraph: {
       type: "website",
       locale: english ? "en_US" : "pt_PT",
-      url: baseUrl,
+      url: siteUrl,
       title: english ? "Egas Viegas - Law Firm in Angola" : "Egas Viegas - Escritório de Advocacia em Angola",
       description: english
         ? "Your interests come first. A law firm serving clients in Luanda and Bié, Angola."
@@ -55,11 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [logo],
     },
     alternates: {
-      canonical: baseUrl,
-      languages: {
-        "en-US": `${baseUrl}?lang=en`,
-        "pt-PT": `${baseUrl}?lang=pt`,
-      },
+      canonical: "/",
     },
   }
 }

@@ -11,7 +11,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale()
   const english = locale === "en"
   return {
-    title: english ? "Practice Areas | Egas Viegas" : "Áreas de Actuação | Egas Viegas Advogados",
+    title: english ? "Practice Areas" : "Áreas de Actuação",
+    alternates: { canonical: "/areas" },
     description: english
       ? "Explore our comprehensive legal practice areas serving clients in Luanda and Bié, Angola. Corporate law, civil litigation, family law, and more."
       : "Explore as nossas áreas de actuação jurídica abrangentes servindo clientes em Luanda e no Bié, Angola. Direito corporativo, litígio civil, direito da família e muito mais.",
