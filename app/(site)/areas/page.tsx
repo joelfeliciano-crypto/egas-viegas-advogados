@@ -4,14 +4,21 @@ import { Check } from "lucide-react"
 import { buttonVariants } from "@/components/ui/button"
 import { PageHero } from "@/components/site/page-hero"
 import { getAreas } from "@/lib/data"
+import { getCopy } from "@/lib/i18n"
+import { getLocale } from "@/lib/locale-server"
 
-export const metadata: Metadata = { title: "Áreas de Actuação" }
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale()
+  return { title: locale === "en" ? "Practice Areas" : "Áreas de Actuação" }
+}
 
 export default async function AreasPage() {
-  const areas = await getAreas()
+  const locale = await getLocale()
+  const copy = getCopy(locale)
+  const areas = await getAreas(locale)
   return (
     <>
-      <PageHero eyebrow="Especialidades" title="Áreas de Actuação" subtitle="Soluções jurídicas especializadas para cada necessidade." />
+      <PageHero eyebrow={copy.areas.eyebrow} title={copy.areas.title} subtitle={copy.areas.subtitle} />
       <section className="mx-auto max-w-6xl px-4 py-20">
         <div className="grid gap-6 md:grid-cols-2">
           {areas.map((a, i) => (
@@ -21,7 +28,7 @@ export default async function AreasPage() {
               <p className="mt-3 text-pretty leading-relaxed text-muted-foreground">{a.intro}</p>
               {a.services?.length > 0 && (
                 <>
-                  <h3 className="mt-5 text-xs font-medium uppercase tracking-widest text-muted-foreground">Serviços</h3>
+                  <h3 className="mt-5 text-xs font-medium uppercase tracking-widest text-muted-foreground">{copy.areas.services}</h3>
                   <ul className="mt-3 flex flex-col gap-2">
                     {a.services.map((s) => (
                       <li key={s} className="flex gap-2 text-sm">
@@ -36,9 +43,9 @@ export default async function AreasPage() {
           ))}
         </div>
         <div className="mt-14 flex flex-col items-start gap-4 rounded-xl bg-primary p-8 text-primary-foreground md:flex-row md:items-center md:justify-between">
-          <p className="font-serif text-2xl">Precisa de assessoria jurídica especializada?</p>
+          <p className="font-serif text-2xl">{copy.areas.cta}</p>
           <Link href="/contacto" className={buttonVariants({ className: "h-11 bg-accent px-5 text-accent-foreground hover:bg-accent/90" })}>
-            Entre em Contacto
+            {copy.areas.contact}
           </Link>
         </div>
       </section>

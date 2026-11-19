@@ -3,11 +3,13 @@
 import { useState } from "react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
+import { getCopy, type Locale } from "@/lib/i18n"
 
 const inputClass =
   "w-full rounded-md border border-input bg-card px-3 py-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
 
-export function ContactForm({ areas }: { areas: string[] }) {
+export function ContactForm({ areas, locale }: { areas: string[]; locale: Locale }) {
+  const copy = getCopy(locale)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
 
@@ -34,10 +36,10 @@ export function ContactForm({ areas }: { areas: string[] }) {
       if (!response.ok) throw new Error("Contact request failed")
       form.reset()
       setSent(true)
-      toast.success("Mensagem enviada! Entraremos em contacto em breve.")
+      toast.success(copy.form.successToast)
     } catch (error) {
       console.error(error)
-      toast.error("Não foi possível enviar a mensagem. Tente novamente ou contacte-nos por WhatsApp.")
+      toast.error(copy.form.errorToast)
     } finally {
       setSending(false)
     }
@@ -46,10 +48,10 @@ export function ContactForm({ areas }: { areas: string[] }) {
   if (sent) {
     return (
       <div className="rounded-xl border bg-card p-8" role="status">
-        <h2 className="font-serif text-2xl font-semibold">Obrigado pelo seu contacto</h2>
-        <p className="mt-2 text-muted-foreground">Recebemos a sua mensagem e responderemos o mais rapidamente possível.</p>
+        <h2 className="font-serif text-2xl font-semibold">{copy.form.sent}</h2>
+        <p className="mt-2 text-muted-foreground">{copy.form.sentDescription}</p>
         <Button className="mt-6" variant="outline" onClick={() => setSent(false)}>
-          Enviar outra mensagem
+          {copy.form.sendAnother}
         </Button>
       </div>
     )
@@ -58,47 +60,47 @@ export function ContactForm({ areas }: { areas: string[] }) {
   return (
     <form onSubmit={onSubmit} className="grid gap-4 rounded-xl border bg-card p-6 sm:grid-cols-2 md:p-8">
       <label className="flex flex-col gap-1.5 text-sm font-medium">
-        Nome completo *
+        {copy.form.fullName} *
         <input name="name" required maxLength={120} autoComplete="name" className={inputClass} />
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-medium">
-        E-mail *
+        {copy.form.email} *
         <input name="email" type="email" required maxLength={160} autoComplete="email" className={inputClass} />
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-medium">
-        Telefone *
+        {copy.form.phone} *
         <input name="phone" type="tel" required maxLength={40} autoComplete="tel" className={inputClass} />
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-medium">
-        Empresa
+        {copy.form.company}
         <input name="company" maxLength={120} autoComplete="organization" className={inputClass} />
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-medium">
-        Área de interesse *
+        {copy.form.area} *
         <select name="area" required defaultValue="" className={inputClass}>
           <option value="" disabled>
-            Seleccione
+            {copy.form.select}
           </option>
           {areas.map((a) => (
             <option key={a}>{a}</option>
           ))}
-          <option>Outra</option>
+          <option>{copy.form.other}</option>
         </select>
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-medium">
-        Assunto *
+        {copy.form.subject} *
         <input name="subject" required maxLength={200} className={inputClass} />
       </label>
       <label className="flex flex-col gap-1.5 text-sm font-medium sm:col-span-2">
-        Mensagem *
+        {copy.form.message} *
         <textarea name="message" required rows={6} maxLength={5000} className={inputClass} />
       </label>
       <label className="flex items-start gap-2 text-sm text-muted-foreground sm:col-span-2">
         <input type="checkbox" required className="mt-1 accent-[var(--primary)]" />
-        Autorizo o tratamento dos meus dados pessoais para efeitos de resposta a este contacto.
+        {copy.form.consent}
       </label>
       <Button type="submit" size="lg" disabled={sending} className="h-11 sm:col-span-2 sm:justify-self-start sm:px-8">
-        {sending ? "A enviar..." : "Enviar Mensagem"}
+        {sending ? copy.form.sending : copy.form.send}
       </Button>
     </form>
   )

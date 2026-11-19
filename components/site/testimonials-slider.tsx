@@ -4,8 +4,10 @@ import { useEffect, useState } from "react"
 import { Quote } from "lucide-react"
 import type { Testimonial } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { getCopy, type Locale } from "@/lib/i18n"
 
-export function TestimonialsSlider({ items }: { items: Testimonial[] }) {
+export function TestimonialsSlider({ items, locale }: { items: Testimonial[]; locale: Locale }) {
+  const copy = getCopy(locale)
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(false)
 
@@ -35,13 +37,13 @@ export function TestimonialsSlider({ items }: { items: Testimonial[] }) {
         </figcaption>
       </figure>
       {items.length > 1 && (
-        <div className="mt-8 flex justify-center gap-2" role="group" aria-label="Escolher avaliação">
+        <div className="mt-8 flex justify-center gap-2" role="group" aria-label={locale === "en" ? "Choose testimonial" : "Escolher avaliação"}>
           {items.map((t, i) => (
             <button
               key={t.id}
               type="button"
               onClick={() => setIndex(i)}
-              aria-label={`Avaliação ${i + 1} de ${items.length}`}
+              aria-label={locale === "en" ? `Testimonial ${i + 1} of ${items.length}` : `Avaliação ${i + 1} de ${items.length}`}
               aria-current={i === index}
               className={cn("h-2 rounded-full transition-all", i === index ? "w-8 bg-gold-ink" : "w-2 bg-border hover:bg-muted-foreground")}
             />

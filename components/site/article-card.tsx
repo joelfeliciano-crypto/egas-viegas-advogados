@@ -1,7 +1,9 @@
 import { ArrowUpRight } from "lucide-react"
 import type { Article } from "@/lib/types"
+import { getCopy, type Locale } from "@/lib/i18n"
 
-export function ArticleCard({ article }: { article: Article }) {
+export function ArticleCard({ article, locale }: { article: Article; locale: Locale }) {
+  const copy = getCopy(locale)
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl border bg-card">
       <div className="relative aspect-[16/10] overflow-hidden">
@@ -28,7 +30,7 @@ export function ArticleCard({ article }: { article: Article }) {
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-gold-ink hover:underline"
           >
-            Ler artigo completo <ArrowUpRight className="size-4" aria-hidden />
+            {copy.article.read} <ArrowUpRight className="size-4" aria-hidden />
             <span className="sr-only">: {article.titulo}</span>
           </a>
         )}

@@ -5,7 +5,7 @@ import { and, count, desc, eq } from "drizzle-orm"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
-import { COLLECTIONS } from "@/lib/admin-config"
+import { COLLECTIONS, SETTINGS_TRANSLATABLE_FIELDS } from "@/lib/admin-config"
 import { defaultSettings } from "@/lib/defaults"
 import { contactMessages, siteContent, siteSettings } from "@/lib/db-schema"
 import { db } from "@/lib/db"
@@ -60,6 +60,28 @@ function validatePayload(collection: string, input: unknown) {
     }
   }
 
+  const rawTranslations = source.translations
+  if (rawTranslations !== undefined) {
+    if (!rawTranslations || typeof rawTranslations !== "object" || Array.isArray(rawTranslations)) throw new Error("Invalid translations")
+    const englishSource = (rawTranslations as Record<string, unknown>).en
+    if (englishSource !== undefined) {
+      if (!englishSource || typeof englishSource !== "object" || Array.isArray(englishSource)) throw new Error("Invalid English translations")
+      const english: Record<string, unknown> = {}
+      for (const field of config.fields.filter((item) => item.translatable)) {
+        const value = (englishSource as Record<string, unknown>)[field.name]
+        if (value === undefined || value === null) continue
+        if (field.type === "list") {
+          if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string" || entry.length > 10000)) throw new Error(`Invalid English ${field.name}`)
+          english[field.name] = (value as string[]).map((entry) => entry.trim()).filter(Boolean).slice(0, 100)
+        } else {
+          if (typeof value !== "string" || value.length > 10000) throw new Error(`Invalid English ${field.name}`)
+          english[field.name] = value.trim()
+        }
+      }
+      result.translations = { en: english }
+    }
+  }
+
   return result
 }
 
@@ -110,7 +132,12 @@ export async function listCollection(name: string): Promise<(Record<string, unkn
   await requireAdmin()
   configForCollection(name)
   const rows = await db.select({ id: siteContent.id, data: siteContent.data }).from(siteContent).where(eq(siteContent.collection, name))
-  const items: (Record<string, unknown> & { id: string })[] = rows.map((row) => ({ ...row.data, id: row.id }))
+  const config = configForCollection(name)
+  const items: (Record<string, unknown> & { id: string })[] = rows.map((row) => {
+    const defaultIndex = /^default-(\d+)$/.exec(row.id)?.[1]
+    const seededTranslations = defaultIndex === undefined ? undefined : config.seed?.[Number(defaultIndex)]?.translations
+    return { ...row.data, translations: row.data.translations ?? seededTranslations, id: row.id }
+  })
   return items.sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
 }
 
@@ -137,7 +164,16 @@ export async function deleteCollectionItem(collection: string, id: string) {
 export async function getAdminSettings(): Promise<SiteSettings> {
   await requireAdmin()
   const [row] = await db.select({ data: siteSettings.data }).from(siteSettings).where(eq(siteSettings.id, "general")).limit(1)
-  return { ...defaultSettings, ...(row?.data as Partial<SiteSettings> | undefined) }
+  const stored = row?.data as Partial<SiteSettings> | undefined
+  return {
+    ...defaultSettings,
+    ...stored,
+    translations: {
+      ...defaultSettings.translations,
+      ...stored?.translations,
+      en: { ...defaultSettings.translations?.en, ...stored?.translations?.en },
+    },
+  } as SiteSettings
 }
 
 export async function saveAdminSettings(input: unknown) {
@@ -146,7 +182,7 @@ export async function saveAdminSettings(input: unknown) {
   const source = input as Record<string, unknown>
   const data: Record<string, unknown> = {}
 
-  for (const key of Object.keys(defaultSettings)) {
+  for (const key of Object.keys(defaultSettings).filter((item) => item !== "translations")) {
     const value = source[key]
     if (key === "values") {
       if (!Array.isArray(value) || value.some((item) => typeof item !== "string")) throw new Error("Invalid values")
@@ -161,6 +197,26 @@ export async function saveAdminSettings(input: unknown) {
       data[key] = value.trim()
     }
   }
+
+  const translationsSource = source.translations
+  if (!translationsSource || typeof translationsSource !== "object" || Array.isArray(translationsSource)) throw new Error("Invalid translations")
+  const englishSource = (translationsSource as Record<string, unknown>).en
+  if (!englishSource || typeof englishSource !== "object" || Array.isArray(englishSource)) throw new Error("Invalid English translations")
+  const english: Record<string, unknown> = {}
+  for (const key of SETTINGS_TRANSLATABLE_FIELDS) {
+    const value = (englishSource as Record<string, unknown>)[key]
+    if (key === "values") {
+      if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.length > 10000)) throw new Error("Invalid English values")
+      english[key] = value.map((item: string) => item.trim()).filter(Boolean).slice(0, 100)
+    } else if (key === "stats") {
+      if (!Array.isArray(value) || value.some((item) => !item || typeof item !== "object" || typeof item.value !== "string" || typeof item.label !== "string")) throw new Error("Invalid English stats")
+      english[key] = value.slice(0, 50)
+    } else {
+      if (typeof value !== "string" || value.length > 10000) throw new Error(`Invalid English ${key}`)
+      english[key] = value.trim()
+    }
+  }
+  data.translations = { en: english }
 
   await db.insert(siteSettings).values({ id: "general", data }).onConflictDoUpdate({
     target: siteSettings.id,

@@ -26,6 +26,14 @@ export function CollectionManager({ config }: { config: CollectionConfig }) {
     e.preventDefault()
     setSaving(true)
     const payload = normalize(config.fields, values)
+    const englishValues = (values.translations as { en?: Record<string, unknown> } | undefined)?.en ?? {}
+    payload.translations = {
+      en: Object.fromEntries(
+        config.fields
+          .filter((field) => field.translatable)
+          .map((field) => [field.name, englishValues[field.name] ?? (field.type === "list" ? [] : "")]),
+      ),
+    }
     try {
       if (editing === "new") await saveCollectionItem(config.name, null, payload)
       else if (editing) await saveCollectionItem(config.name, editing.id, payload)
@@ -66,12 +74,30 @@ export function CollectionManager({ config }: { config: CollectionConfig }) {
       {editing && (
         <form onSubmit={save} className="flex flex-col gap-4 rounded-xl border bg-card p-6">
           <h2 className="font-serif text-xl font-semibold">{editing === "new" ? `Novo ${config.singular}` : `Editar ${config.singular}`}</h2>
+          <p className="text-sm text-muted-foreground">
+            Os campos em inglês são apresentados quando o visitante escolhe EN. Se deixar uma tradução vazia, será apresentado o conteúdo em português.
+          </p>
           <div className="grid gap-4 md:grid-cols-2">
-            {config.fields.map((f) => (
-              <div key={f.name} className={f.type === "textarea" || f.type === "list" ? "md:col-span-2" : ""}>
-                <FieldInput field={f} value={values[f.name]} onChange={(v) => setValues((prev) => ({ ...prev, [f.name]: v }))} />
-              </div>
-            ))}
+            {config.fields.map((f) => {
+              const englishValues = (values.translations as { en?: Record<string, unknown> } | undefined)?.en ?? {}
+              return (
+                <div key={f.name} className={f.type === "textarea" || f.type === "list" ? "md:col-span-2" : ""}>
+                  <FieldInput field={f} value={values[f.name]} onChange={(v) => setValues((prev) => ({ ...prev, [f.name]: v }))} />
+                  {f.translatable && (
+                    <div className="mt-4">
+                      <FieldInput
+                        field={{ ...f, name: `en-${f.name}`, label: `English — ${f.label}`, required: false, hint: undefined }}
+                        value={englishValues[f.name]}
+                        onChange={(value) => setValues((prev) => {
+                          const translations = (prev.translations as { en?: Record<string, unknown> } | undefined) ?? {}
+                          return { ...prev, translations: { ...translations, en: { ...translations.en, [f.name]: value } } }
+                        })}
+                      />
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
           <div className="flex gap-2">
             <Button type="submit" disabled={saving}>
