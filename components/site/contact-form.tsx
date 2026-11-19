@@ -1,10 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { addDoc, collection, serverTimestamp } from "firebase/firestore/lite"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { db } from "@/lib/firebase"
 
 const inputClass =
   "w-full rounded-md border border-input bg-card px-3 py-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
@@ -20,17 +18,20 @@ export function ContactForm({ areas }: { areas: string[] }) {
     const clean = (v: string | undefined, max: number) => (v ?? "").trim().slice(0, max)
     setSending(true)
     try {
-      await addDoc(collection(db, "contacts"), {
-        name: clean(data.name, 120),
-        email: clean(data.email, 160),
-        phone: clean(data.phone, 40),
-        company: clean(data.company, 120),
-        area: clean(data.area, 120),
-        subject: clean(data.subject, 200),
-        message: clean(data.message, 5000),
-        read: false,
-        timestamp: serverTimestamp(),
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          name: clean(data.name, 120),
+          email: clean(data.email, 160),
+          phone: clean(data.phone, 40),
+          company: clean(data.company, 120),
+          area: clean(data.area, 120),
+          subject: clean(data.subject, 200),
+          message: clean(data.message, 5000),
+        }),
       })
+      if (!response.ok) throw new Error("Contact request failed")
       form.reset()
       setSent(true)
       toast.success("Mensagem enviada! Entraremos em contacto em breve.")

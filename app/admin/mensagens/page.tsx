@@ -2,29 +2,22 @@
 
 import { useState } from "react"
 import useSWR from "swr"
-import { collection, deleteDoc, doc, getDocs, orderBy, query, updateDoc } from "firebase/firestore/lite"
 import { Mail, Phone, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { serialize } from "@/lib/data"
-import { db } from "@/lib/firebase"
+import { deleteContactMessage, getContactMessages, markContactMessageRead } from "@/lib/admin-actions"
 import type { ContactMessage } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
-async function loadMessages(): Promise<ContactMessage[]> {
-  const snap = await getDocs(query(collection(db, "contacts"), orderBy("timestamp", "desc")))
-  return snap.docs.map((d) => ({ ...(serialize(d.data()) as object), id: d.id }) as ContactMessage)
-}
-
 export default function MessagesPage() {
-  const { data, error, isLoading, mutate } = useSWR("contacts", loadMessages)
+  const { data, error, isLoading, mutate } = useSWR("contacts", getContactMessages)
   const [openId, setOpenId] = useState<string | null>(null)
   const selected = data?.find((m) => m.id === openId)
 
   async function openMessage(m: ContactMessage) {
     setOpenId(m.id)
     if (!m.read) {
-      await updateDoc(doc(db, "contacts", m.id), { read: true }).catch(console.error)
+      await markContactMessageRead(m.id).catch(console.error)
       mutate(data?.map((x) => (x.id === m.id ? { ...x, read: true } : x)), { revalidate: false })
     }
   }
@@ -32,7 +25,7 @@ export default function MessagesPage() {
   async function remove(id: string) {
     if (!confirm("Eliminar esta mensagem?")) return
     try {
-      await deleteDoc(doc(db, "contacts", id))
+      await deleteContactMessage(id)
       setOpenId(null)
       mutate()
       toast.success("Mensagem eliminada.")
