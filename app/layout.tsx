@@ -3,11 +3,11 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import { Toaster } from "sonner"
 import { getLocale } from "@/lib/locale-server"
+import { SITE_URL } from "@/lib/seo"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" })
-const siteUrl = "https://egas-viegas-advogados.vercel.app"
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale()
@@ -28,7 +28,18 @@ export async function generateMetadata(): Promise<Metadata> {
     icons: { icon: logo, shortcut: logo, apple: logo },
     verification: { google: "2swuBHVfQ3vxyhw4cJ-ML5NtnyETGKFLP208Zzci-2Y" },
     generator: "v0.app",
-    metadataBase: new URL(siteUrl),
+    metadataBase: new URL(SITE_URL),
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
     openGraph: {
       type: "website",
       locale: english ? "en_US" : "pt_PT",
