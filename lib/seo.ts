@@ -1,1 +1,1 @@
-export const SITE_URL = "https://egas-viegas-advogados.vercel.app"
+export const SITE_URL = "https://v0-egas-viegas-advogados.vercel.app"
