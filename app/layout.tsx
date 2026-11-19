@@ -32,7 +32,6 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       type: "website",
       locale: english ? "en_US" : "pt_PT",
-      url: siteUrl,
       title: english ? "Egas Viegas - Law Firm in Angola" : "Egas Viegas - Escritório de Advocacia em Angola",
       description: english
         ? "Your interests come first. A law firm serving clients in Luanda and Bié, Angola."
