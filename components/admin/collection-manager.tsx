@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import useSWR from "swr"
-import { Pencil, Plus, Trash2 } from "lucide-react"
+import { ImagePlus, Pencil, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import type { CollectionConfig } from "@/lib/admin-config"
@@ -16,6 +16,25 @@ export function CollectionManager({ config }: { config: CollectionConfig }) {
   const [editing, setEditing] = useState<Row | "new" | null>(null)
   const [values, setValues] = useState<Record<string, unknown>>({})
   const [saving, setSaving] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadError, setUploadError] = useState("")
+
+  async function uploadTeamImage(file: File) {
+    setUploadingImage(true)
+    setUploadError("")
+    try {
+      const formData = new FormData()
+      formData.set("file", file)
+      const response = await fetch("/api/admin/team-image", { method: "POST", body: formData })
+      const result = await response.json()
+      if (!response.ok) throw new Error(result.error ?? "Não foi possível carregar a imagem.")
+      setValues((current) => ({ ...current, img: result.url }))
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : "Não foi possível carregar a imagem.")
+    } finally {
+      setUploadingImage(false)
+    }
+  }
 
   function open(row: Row | "new") {
     setEditing(row)
@@ -82,7 +101,34 @@ export function CollectionManager({ config }: { config: CollectionConfig }) {
               const englishValues = (values.translations as { en?: Record<string, unknown> } | undefined)?.en ?? {}
               return (
                 <div key={f.name} className={f.type === "textarea" || f.type === "list" ? "md:col-span-2" : ""}>
-                  <FieldInput field={f} value={values[f.name]} onChange={(v) => setValues((prev) => ({ ...prev, [f.name]: v }))} />
+                  {config.name === "membros" && f.name === "img" ? (
+                    <div className="flex flex-col gap-3">
+                      <FieldInput field={f} value={values[f.name]} onChange={(v) => setValues((prev) => ({ ...prev, [f.name]: v }))} />
+                      <label className="flex w-fit cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium hover:bg-secondary">
+                        <ImagePlus className="size-4" aria-hidden />
+                        {uploadingImage ? "A carregar imagem..." : "Carregar imagem"}
+                        <input
+                          className="sr-only"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/avif"
+                          disabled={uploadingImage}
+                          aria-label="Escolher fotografia da equipa"
+                          onChange={(event) => {
+                            const file = event.currentTarget.files?.[0]
+                            if (file) void uploadTeamImage(file)
+                            event.currentTarget.value = ""
+                          }}
+                        />
+                      </label>
+                      <p className="text-xs text-muted-foreground">JPG, PNG, WebP ou AVIF, até 5 MB. Também pode colar um URL acima.</p>
+                      {uploadError && <p role="alert" className="text-sm text-destructive">{uploadError}</p>}
+                      {typeof values.img === "string" && values.img && (
+                        <img src={values.img} alt="Pré-visualização da fotografia" className="size-24 rounded-md border object-cover" />
+                      )}
+                    </div>
+                  ) : (
+                    <FieldInput field={f} value={values[f.name]} onChange={(v) => setValues((prev) => ({ ...prev, [f.name]: v }))} />
+                  )}
                   {f.translatable && (
                     <div className="mt-4">
                       <FieldInput
@@ -100,8 +146,8 @@ export function CollectionManager({ config }: { config: CollectionConfig }) {
             })}
           </div>
           <div className="flex gap-2">
-            <Button type="submit" disabled={saving}>
-              {saving ? "A guardar..." : "Guardar"}
+            <Button type="submit" disabled={saving || uploadingImage}>
+              {saving ? "A guardar..." : uploadingImage ? "A carregar imagem..." : "Guardar"}
             </Button>
             <Button type="button" variant="outline" onClick={() => setEditing(null)}>
               Cancelar
