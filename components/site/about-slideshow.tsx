@@ -1,8 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Pause, Play } from "lucide-react"
-import { cn } from "@/lib/utils"
 
 const slides = [
   {
@@ -48,52 +46,35 @@ const slides = [
 ]
 
 export function AboutSlideshow({ locale }: { locale: "pt" | "en" }) {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(true)
+  const [{ activeIndex, previousIndex }, setSlide] = useState({ activeIndex: 0, previousIndex: 0 })
 
   useEffect(() => {
-    if (!isPlaying) return
     const interval = window.setInterval(() => {
-      setActiveIndex((index) => (index + 1) % slides.length)
+      setSlide(({ activeIndex: currentIndex }) => ({
+        previousIndex: currentIndex,
+        activeIndex: (currentIndex + 1) % slides.length,
+      }))
     }, 4000)
     return () => window.clearInterval(interval)
-  }, [isPlaying])
+  }, [])
 
   const activeSlide = slides[activeIndex]
+  const previousSlide = slides[previousIndex]
 
   return (
-    <div className="relative">
+    <div className="relative isolate overflow-hidden rounded-xl">
+      <img
+        src={previousSlide.src}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 aspect-[4/5] size-full object-cover"
+      />
       <img
         key={activeSlide.src}
         src={activeSlide.src}
         alt={locale === "en" ? `Egas Viegas office, photo ${activeIndex + 1} of ${slides.length}` : activeSlide.alt}
-        className="aspect-[4/5] w-full rounded-xl object-cover motion-safe:animate-[about-fade-in_500ms_ease-out]"
+        className="about-slideshow-image relative aspect-[4/5] w-full object-cover"
       />
-      <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-2 px-4">
-        <div className="flex flex-wrap justify-center gap-2" role="group" aria-label={locale === "en" ? "Choose office photo" : "Escolher fotografia do escritório"}>
-        {slides.map((slide, index) => (
-          <button
-            key={slide.src}
-            type="button"
-            onClick={() => setActiveIndex(index)}
-            aria-label={locale === "en" ? `Show photo ${index + 1}` : `Mostrar fotografia ${index + 1}`}
-            aria-pressed={activeIndex === index}
-            className={cn(
-              "size-2.5 rounded-full border border-white/90 shadow-sm transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
-              activeIndex === index ? "scale-125 bg-white" : "bg-black/35 hover:bg-white/80",
-            )}
-          />
-        ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => setIsPlaying((playing) => !playing)}
-          aria-label={isPlaying ? (locale === "en" ? "Pause slideshow" : "Pausar apresentação") : (locale === "en" ? "Play slideshow" : "Retomar apresentação")}
-          className="absolute right-4 bottom-0 grid size-9 place-items-center rounded-full bg-black/55 text-white shadow-sm backdrop-blur-sm transition hover:bg-black/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-        >
-          {isPlaying ? <Pause className="size-4" aria-hidden /> : <Play className="size-4" aria-hidden />}
-        </button>
-      </div>
     </div>
   )
 }
