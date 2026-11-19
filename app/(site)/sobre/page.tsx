@@ -9,7 +9,16 @@ import { getLocale } from "@/lib/locale-server"
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale()
-  return { title: locale === "en" ? "About Us" : "Sobre Nós" }
+  const english = locale === "en"
+  return {
+    title: english ? "About Us | Egas Viegas Law Firm" : "Sobre Nós | Egas Viegas Advogados",
+    description: english
+      ? "Learn about Egas Viegas, a leading law firm in Angola with offices in Luanda and Bié. Expert legal services with commitment to excellence."
+      : "Conheça a Egas Viegas, um escritório de advocacia líder em Angola com escritórios em Luanda e no Bié. Serviços jurídicos especializados com compromisso de excelência.",
+    keywords: english
+      ? "about law firm, legal professionals, Angola lawyers, law firm Luanda, Bié"
+      : "sobre escritório jurídico, profissionais legais, advogados Angola, escritório Luanda, Bié",
+  }
 }
 
 export default async function AboutPage() {

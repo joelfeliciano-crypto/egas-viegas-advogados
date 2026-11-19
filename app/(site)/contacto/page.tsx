@@ -8,7 +8,16 @@ import { getLocale } from "@/lib/locale-server"
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale()
-  return { title: locale === "en" ? "Contact" : "Contacto" }
+  const english = locale === "en"
+  return {
+    title: english ? "Contact Us | Egas Viegas Law Firm" : "Contacte-nos | Egas Viegas Advogados",
+    description: english
+      ? "Contact Egas Viegas law firm in Luanda or Bié, Angola. Get in touch with our team for legal consultation and services."
+      : "Contacte o escritório de advocacia Egas Viegas em Luanda ou no Bié, Angola. Entre em contacto com a nossa equipa para consulta e serviços jurídicos.",
+    keywords: english
+      ? "contact law firm, legal consultation, Angola, Luanda, Bié, lawyer contact"
+      : "contacto escritório, consulta jurídica, Angola, Luanda, Bié, contacto advogado",
+  }
 }
 
 export default async function ContactPage() {

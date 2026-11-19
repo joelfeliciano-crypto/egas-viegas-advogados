@@ -7,7 +7,16 @@ import { getLocale } from "@/lib/locale-server"
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale()
-  return { title: locale === "en" ? "Insights" : "Conteúdos" }
+  const english = locale === "en"
+  return {
+    title: english ? "Legal Insights & Articles | Egas Viegas" : "Conteúdos Jurídicos | Egas Viegas Advogados",
+    description: english
+      ? "Read legal insights, articles, and thought leadership from Egas Viegas law firm. Stay informed on legal trends in Angola."
+      : "Leia conteúdos jurídicos, artigos e pensamento de liderança da Egas Viegas. Mantenha-se informado sobre as tendências jurídicas em Angola.",
+    keywords: english
+      ? "legal insights, law articles, Angola legal news, attorney articles, legal trends"
+      : "conteúdos jurídicos, artigos de direito, notícias jurídicas Angola, artigos advogados, tendências legais",
+  }
 }
 
 export default async function ContentsPage() {
