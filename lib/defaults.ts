@@ -1,4 +1,5 @@
 import type { Area, Article, SiteSettings, TeamMember, Testimonial, Thought, Video } from "./types"
+import { defaultAreasEnglish, defaultArticlesEnglish, defaultSettingsEnglish, defaultTeamEnglish } from "./default-translations"
 
 export const defaultSettings: SiteSettings = {
   index_hero_title: "Advocacia de Excelência",
@@ -37,6 +38,7 @@ export const defaultSettings: SiteSettings = {
   facebook: "https://www.facebook.com/EVSOCIEDADEDADVOGADOS",
   youtube: "https://youtube.com/@evsociedadedeadvogadosrl7225",
   tiktok: "https://www.tiktok.com/@ev.sociedade.de.a",
+  translations: { en: defaultSettingsEnglish },
 }
 
 type Seed<T> = Omit<T, "id">
@@ -92,7 +94,7 @@ export const defaultAreas: Seed<Area>[] = [
     intro: "Suporte em serviços notariais e registais, facilitando processos de partilha, requerimentos e obtenção de certidões.",
     services: ["Solicitação de certidão", "Entrega e levantamento de documentos", "Partilha extrajudicial", "Requerimentos em geral"],
   },
-].map((a, i) => ({ ...a, order: i + 1 }))
+].map((a, i) => ({ ...a, order: i + 1, translations: { en: defaultAreasEnglish[i] } }))
 
 const assessorDesc =
   "Proporciona suporte técnico e estratégico aos advogados, elabora pareceres, analisa contratos e faz acompanhamento de processos, auxiliando na tomada de decisões de natureza jurídica."
@@ -144,7 +146,7 @@ export const defaultTeam: Seed<TeamMember>[] = [
   { nome: "Valentino Essove Naviti Cussecala", cargo: "Assessor Jurídico", section: "associates", especialidades: ["Direito Laboral", "Direito Penal", "Direito da Família", "Direito do Autor", "Direito Imobiliário"], desc: assessorDesc, img: "" },
   { nome: "Isabel Domingas Seteca Cahungo", cargo: "Assessora Jurídica", section: "associates", especialidades: ["Direito Laboral", "Direito Fiscal", "Direito Empresarial", "Direito Mineiro", "Direito Imobiliário"], desc: assessorDesc, img: "" },
   { nome: "Edna Severina Chissingui Catota", cargo: "Assessora Jurídica", section: "associates", especialidades: ["Direito Laboral", "Direito da Família", "Direito Empresarial", "Direito Notarial", "Direito Penal"], desc: assessorDesc, img: "" },
-].map((m, i) => ({ ...m, order: i + 1 })) as Seed<TeamMember>[]
+].map((m, i) => ({ ...m, order: i + 1, translations: { en: defaultTeamEnglish[i] } })) as Seed<TeamMember>[]
 
 export const defaultArticles: Seed<Article>[] = [
   {
@@ -217,7 +219,7 @@ export const defaultArticles: Seed<Article>[] = [
     imgUrl: "",
     destaque: false,
   },
-].map((a, i) => ({ ...a, order: i + 1 }))
+].map((a, i) => ({ ...a, order: i + 1, translations: { en: defaultArticlesEnglish[i] } }))
 
 export const defaultVideos: Seed<Video>[] = []
 export const defaultThoughts: Seed<Thought>[] = []

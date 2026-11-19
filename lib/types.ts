@@ -1,6 +1,8 @@
 export type Stat = { value: string; label: string }
+export type ContentTranslations = { en?: Record<string, unknown> }
 
 export type SiteSettings = {
+  translations?: ContentTranslations
   index_hero_title: string
   hero_subtitle: string
   hero_cta: string
@@ -30,6 +32,7 @@ export type SiteSettings = {
 }
 
 export type Area = {
+  translations?: ContentTranslations
   id: string
   title: string
   intro: string
@@ -40,6 +43,7 @@ export type Area = {
 export type TeamCategory = "founders" | "partners" | "advogados" | "estagiarios" | "associates"
 
 export type TeamMember = {
+  translations?: ContentTranslations
   id: string
   nome: string
   cargo: string
@@ -51,6 +55,7 @@ export type TeamMember = {
 }
 
 export type Article = {
+  translations?: ContentTranslations
   id: string
   titulo: string
   autor: string
@@ -63,9 +68,9 @@ export type Article = {
   order: number
 }
 
-export type Video = { id: string; titulo: string; descricao: string; youtubeUrl: string; order: number }
-export type Thought = { id: string; texto: string; autor: string; data: string; order: number }
-export type Testimonial = { id: string; texto: string; autor: string; cargo: string; order: number }
+export type Video = { translations?: ContentTranslations; id: string; titulo: string; descricao: string; youtubeUrl: string; order: number }
+export type Thought = { translations?: ContentTranslations; id: string; texto: string; autor: string; data: string; order: number }
+export type Testimonial = { translations?: ContentTranslations; id: string; texto: string; autor: string; cargo: string; order: number }
 
 export type ContactMessage = {
   id: string

@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Quote } from "lucide-react"
 import type { Article, Thought, Video } from "@/lib/types"
+import { getCopy, type Locale } from "@/lib/i18n"
 import { cn } from "@/lib/utils"
 import { ArticleCard } from "./article-card"
 
@@ -11,20 +12,21 @@ function youtubeId(url: string) {
   return m?.[1]
 }
 
-export function ContentTabs({ articles, videos, thoughts }: { articles: Article[]; videos: Video[]; thoughts: Thought[] }) {
+export function ContentTabs({ articles, videos, thoughts, locale }: { articles: Article[]; videos: Video[]; thoughts: Thought[]; locale: Locale }) {
+  const copy = getCopy(locale)
   const tabs = [
-    { id: "artigos", label: "Artigos", count: articles.length },
-    { id: "videos", label: "Vídeos", count: videos.length },
-    { id: "pensamentos", label: "Pensamentos", count: thoughts.length },
+    { id: "artigos", label: copy.content.articles, count: articles.length },
+    { id: "videos", label: copy.content.videos, count: videos.length },
+    { id: "pensamentos", label: copy.content.thoughts, count: thoughts.length },
   ]
   const [tab, setTab] = useState("artigos")
-  const categories = ["Todos", ...Array.from(new Set(articles.map((a) => a.categoria).filter(Boolean)))]
-  const [category, setCategory] = useState("Todos")
-  const filtered = category === "Todos" ? articles : articles.filter((a) => a.categoria === category)
+  const categories = [copy.content.all, ...Array.from(new Set(articles.map((a) => a.categoria).filter(Boolean)))]
+  const [category, setCategory] = useState(copy.content.all)
+  const filtered = category === copy.content.all ? articles : articles.filter((a) => a.categoria === category)
 
   return (
     <>
-      <div role="tablist" aria-label="Tipo de conteúdo" className="mb-8 flex gap-6 border-b">
+      <div role="tablist" aria-label={copy.content.tabLabel} className="mb-8 flex gap-6 border-b">
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -63,7 +65,7 @@ export function ContentTabs({ articles, videos, thoughts }: { articles: Article[
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((a) => (
-              <ArticleCard key={a.id} article={a} />
+              <ArticleCard key={a.id} article={a} locale={locale} />
             ))}
           </div>
         </div>
@@ -72,7 +74,7 @@ export function ContentTabs({ articles, videos, thoughts }: { articles: Article[
       {tab === "videos" && (
         <div id="panel-videos" role="tabpanel">
           {videos.length === 0 ? (
-            <p className="text-muted-foreground">Ainda não há vídeos publicados.</p>
+            <p className="text-muted-foreground">{copy.content.noVideos}</p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2">
               {videos.map((v) => {
@@ -104,7 +106,7 @@ export function ContentTabs({ articles, videos, thoughts }: { articles: Article[
       {tab === "pensamentos" && (
         <div id="panel-pensamentos" role="tabpanel">
           {thoughts.length === 0 ? (
-            <p className="text-muted-foreground">Ainda não há pensamentos publicados.</p>
+            <p className="text-muted-foreground">{copy.content.noThoughts}</p>
           ) : (
             <div className="grid gap-6 md:grid-cols-2">
               {thoughts.map((t) => (

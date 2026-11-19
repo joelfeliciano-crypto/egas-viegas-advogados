@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import { X } from "lucide-react"
 import { TEAM_CATEGORIES, type TeamMember } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { getCopy, type Locale } from "@/lib/i18n"
 import { Avatar } from "./page-hero"
 
-export function TeamGrid({ team }: { team: TeamMember[] }) {
+export function TeamGrid({ team, locale }: { team: TeamMember[]; locale: Locale }) {
+  const copy = getCopy(locale)
   const [filter, setFilter] = useState<string>("all")
   const [selected, setSelected] = useState<TeamMember | null>(null)
 
@@ -22,8 +24,8 @@ export function TeamGrid({ team }: { team: TeamMember[] }) {
 
   return (
     <>
-      <div className="mb-10 flex flex-wrap gap-2" role="group" aria-label="Filtrar por categoria">
-        {[{ value: "all", label: "Todos" }, ...categories].map((c) => (
+      <div className="mb-10 flex flex-wrap gap-2" role="group" aria-label={copy.team.filter}>
+        {[{ value: "all", label: copy.team.all }, ...categories.map((category) => ({ ...category, label: copy.team.categories[category.value] }))].map((c) => (
           <button
             key={c.value}
             type="button"
@@ -77,7 +79,7 @@ export function TeamGrid({ team }: { team: TeamMember[] }) {
               type="button"
               autoFocus
               onClick={() => setSelected(null)}
-              aria-label="Fechar"
+              aria-label={copy.team.close}
               className="absolute top-3 right-3 rounded-full bg-card/90 p-2 hover:bg-secondary"
             >
               <X className="size-5" />
@@ -92,7 +94,7 @@ export function TeamGrid({ team }: { team: TeamMember[] }) {
                 <p className="mt-4 text-pretty leading-relaxed text-muted-foreground">{selected.desc}</p>
                 {selected.especialidades?.length > 0 && (
                   <>
-                    <h3 className="mt-5 text-xs font-medium uppercase tracking-widest text-muted-foreground">Especialidades</h3>
+                    <h3 className="mt-5 text-xs font-medium uppercase tracking-widest text-muted-foreground">{copy.team.specialties}</h3>
                     <ul className="mt-2 flex flex-wrap gap-1.5">
                       {selected.especialidades.map((e) => (
                         <li key={e} className="rounded-full bg-secondary px-2.5 py-1 text-xs">

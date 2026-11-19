@@ -7,20 +7,17 @@ import { SectionHeading } from "@/components/site/page-hero"
 import { ArticleCard } from "@/components/site/article-card"
 import { getAreas, getArticles, getSettings, getTestimonials } from "@/lib/data"
 import { cn } from "@/lib/utils"
-
-const PRINCIPLES = [
-  { title: "Ética", text: "Conduta irrepreensível e transparência em todas as nossas acções, respeitando os mais altos padrões profissionais." },
-  { title: "Excelência", text: "Busca constante pela perfeição técnica e actualização contínua para oferecer as melhores soluções jurídicas." },
-  { title: "Compromisso", text: "Dedicação integral aos interesses dos nossos clientes, tratando cada caso com a importância que merece." },
-  { title: "Inovação", text: "Utilização de tecnologia e métodos modernos para optimizar processos e alcançar resultados superiores." },
-]
+import { getCopy } from "@/lib/i18n"
+import { getLocale } from "@/lib/locale-server"
 
 export default async function HomePage() {
+  const locale = await getLocale()
+  const copy = getCopy(locale)
   const [settings, areas, articles, testimonials] = await Promise.all([
-    getSettings(),
-    getAreas(),
-    getArticles(),
-    getTestimonials(),
+    getSettings(locale),
+    getAreas(locale),
+    getArticles(locale),
+    getTestimonials(locale),
   ])
 
   return (
@@ -43,7 +40,7 @@ export default async function HomePage() {
         </video>
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary via-primary/80 to-transparent" />
         <div className="mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-4 py-24">
-          <p className="mb-4 text-xs uppercase tracking-[0.35em] text-accent">EV - Sociedade de Advogados, RL</p>
+          <p className="mb-4 text-xs uppercase tracking-[0.35em] text-accent">EV - {copy.brand}, RL</p>
           <h1 className="max-w-3xl text-balance font-serif text-5xl font-semibold leading-tight md:text-7xl">
             {settings.index_hero_title}
           </h1>
@@ -56,7 +53,7 @@ export default async function HomePage() {
               href="/areas"
               className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-12 border-white/30 bg-transparent px-6 text-primary-foreground hover:bg-white/10 hover:text-primary-foreground")}
             >
-              Áreas de Actuação
+              {copy.home.ctaAreas}
             </Link>
           </div>
         </div>
@@ -64,10 +61,10 @@ export default async function HomePage() {
 
       <section className="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:grid-cols-2 md:items-center">
         <div>
-          <SectionHeading eyebrow="01 — Quem somos" title={settings.about_title} />
+          <SectionHeading eyebrow={copy.home.about} title={settings.about_title} />
           <p className="text-pretty leading-relaxed text-muted-foreground">{settings.history_p1}</p>
           <Link href="/sobre" className="mt-6 inline-flex items-center gap-2 font-medium text-gold-ink hover:underline">
-            Conhecer a nossa história <ArrowRight className="size-4" aria-hidden />
+            {copy.home.ourStory} <ArrowRight className="size-4" aria-hidden />
           </Link>
         </div>
         <dl className="grid grid-cols-2 gap-4">
@@ -82,10 +79,10 @@ export default async function HomePage() {
 
       <section className="bg-primary py-20 text-primary-foreground">
         <div className="mx-auto max-w-6xl px-4">
-          <p className="mb-2 text-xs uppercase tracking-[0.3em] text-accent">02 — Princípios</p>
-          <h2 className="mb-10 font-serif text-3xl font-semibold md:text-4xl">Os nossos princípios</h2>
+          <p className="mb-2 text-xs uppercase tracking-[0.3em] text-accent">{copy.home.principles}</p>
+          <h2 className="mb-10 font-serif text-3xl font-semibold md:text-4xl">{copy.home.principlesTitle}</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PRINCIPLES.map((p, i) => (
+            {copy.home.principleList.map((p, i) => (
               <div key={p.title} className="border-t border-accent/50 pt-5">
                 <span className="font-serif text-sm text-accent">{String(i + 1).padStart(2, "0")}</span>
                 <h3 className="mt-2 font-serif text-xl">{p.title}</h3>
@@ -97,7 +94,7 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-20">
-        <SectionHeading eyebrow="03 — Especialidades" title="Áreas de Actuação" subtitle="Soluções jurídicas especializadas para cada necessidade." />
+        <SectionHeading eyebrow={copy.home.specialties} title={copy.areas.title} subtitle={copy.home.specialtiesSubtitle} />
         <ul className="grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-3">
           {areas.slice(0, 6).map((a) => (
             <li key={a.id} className="bg-card">
@@ -109,17 +106,17 @@ export default async function HomePage() {
           ))}
         </ul>
         <Link href="/areas" className="mt-6 inline-flex items-center gap-2 font-medium text-gold-ink hover:underline">
-          Ver todas as áreas <ArrowRight className="size-4" aria-hidden />
+          {copy.home.seeAllAreas} <ArrowRight className="size-4" aria-hidden />
         </Link>
       </section>
 
       {articles.length > 0 && (
         <section className="bg-secondary py-20">
           <div className="mx-auto max-w-6xl px-4">
-            <SectionHeading eyebrow="04 — Conteúdos" title="Artigos recentes" />
+            <SectionHeading eyebrow={copy.home.content} title={copy.home.recentArticles} />
             <div className="grid gap-6 md:grid-cols-3">
               {articles.slice(0, 3).map((a) => (
-                <ArticleCard key={a.id} article={a} />
+                <ArticleCard key={a.id} article={a} locale={locale} />
               ))}
             </div>
           </div>
@@ -128,19 +125,19 @@ export default async function HomePage() {
 
       {testimonials.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-20">
-          <SectionHeading eyebrow="05 — Avaliações" title="O que dizem os nossos clientes" />
-          <TestimonialsSlider items={testimonials} />
+          <SectionHeading eyebrow={copy.home.reviews} title={copy.home.whatClientsSay} />
+          <TestimonialsSlider items={testimonials} locale={locale} />
         </section>
       )}
 
       <section className="bg-accent">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 py-14 md:flex-row md:items-center">
           <div>
-            <h2 className="font-serif text-3xl font-semibold text-accent-foreground">Precisa de assessoria jurídica?</h2>
-            <p className="mt-2 text-accent-foreground/80">A nossa equipa está pronta para oferecer a melhor solução para o seu caso.</p>
+            <h2 className="font-serif text-3xl font-semibold text-accent-foreground">{copy.home.needAdvice}</h2>
+            <p className="mt-2 text-accent-foreground/80">{copy.home.teamReady}</p>
           </div>
           <Link href="/contacto" className={cn(buttonVariants({ size: "lg" }), "h-12 px-6")}>
-            Entre em Contacto
+            {copy.home.contactUs}
           </Link>
         </div>
       </section>

@@ -1,10 +1,19 @@
 import Link from "next/link"
 import { Mail, MapPin, Phone } from "lucide-react"
 import type { SiteSettings } from "@/lib/types"
-import { NAV_LINKS } from "@/lib/nav"
+import { getCopy, type Locale } from "@/lib/i18n"
 import { Logo } from "./navbar"
 
-export function Footer({ settings }: { settings: SiteSettings }) {
+export function Footer({ settings, locale }: { settings: SiteSettings; locale: Locale }) {
+  const copy = getCopy(locale)
+  const links = [
+    { href: "/", label: copy.nav.home },
+    { href: "/sobre", label: copy.nav.about },
+    { href: "/areas", label: copy.nav.areas },
+    { href: "/equipa", label: copy.nav.team },
+    { href: "/conteudos", label: copy.nav.content },
+    { href: "/contacto", label: copy.nav.contact },
+  ]
   const socials = [
     { label: "LinkedIn", href: settings.linkedin },
     { label: "Instagram", href: settings.instagram },
@@ -17,7 +26,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
     <footer className="bg-primary text-primary-foreground">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-3">
         <div className="flex flex-col gap-4">
-          <Logo light />
+          <Logo light locale={locale} />
           <p className="text-sm leading-relaxed text-primary-foreground/70">{settings.hero_subtitle}</p>
           <ul className="flex flex-wrap gap-x-4 gap-y-2">
             {socials.map((s) => (
@@ -35,9 +44,9 @@ export function Footer({ settings }: { settings: SiteSettings }) {
           </ul>
         </div>
         <div>
-          <h2 className="mb-4 font-serif text-lg text-accent">Links Rápidos</h2>
+          <h2 className="mb-4 font-serif text-lg text-accent">{copy.footer.quickLinks}</h2>
           <ul className="grid grid-cols-2 gap-2">
-            {NAV_LINKS.map((l) => (
+            {links.map((l) => (
               <li key={l.href}>
                 <Link href={l.href} className="text-sm text-primary-foreground/70 hover:text-accent">
                   {l.label}
@@ -47,7 +56,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
           </ul>
         </div>
         <div>
-          <h2 className="mb-4 font-serif text-lg text-accent">Contacto</h2>
+          <h2 className="mb-4 font-serif text-lg text-accent">{copy.footer.contact}</h2>
           <ul className="flex flex-col gap-3 text-sm text-primary-foreground/70">
             <li className="flex gap-2">
               <Mail className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
@@ -73,7 +82,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
       <div className="border-t border-white/10">
         <p className="mx-auto max-w-6xl px-4 py-5 text-xs text-primary-foreground/50">
           {"© "}
-          {new Date().getFullYear()} Egas Viegas - Sociedade de Advogados, RL. Todos os direitos reservados.
+          {new Date().getFullYear()} Egas Viegas - Sociedade de Advogados, RL. {copy.footer.rights}
         </p>
       </div>
     </footer>

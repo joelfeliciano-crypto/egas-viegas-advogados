@@ -3,27 +3,33 @@ import { Eye, Scale, Target } from "lucide-react"
 import { PageHero, SectionHeading } from "@/components/site/page-hero"
 import { Counter } from "@/components/site/motion"
 import { getSettings } from "@/lib/data"
+import { getCopy } from "@/lib/i18n"
+import { getLocale } from "@/lib/locale-server"
 
-export const metadata: Metadata = { title: "Sobre Nós" }
-
-const DIFFERENTIALS = [
-  { title: "Equipa Multidisciplinar", text: "Mais de 10 profissionais especializados em diversas áreas do direito, garantindo atendimento completo e integrado." },
-  { title: "Tecnologia Avançada", text: "Ferramentas modernas de gestão jurídica e análise de dados para soluções mais ágeis e precisas." },
-  { title: "Atendimento Personalizado", text: "Cada cliente recebe atenção individualizada, com estratégias jurídicas adaptadas aos seus objectivos." },
-  { title: "Actuação Nacional", text: "Presença em Luanda e no Bié, com parcerias estratégicas que garantem suporte jurídico onde estiver." },
-  { title: "Experiência Internacional", text: "Parcerias com escritórios internacionais para assessoria em operações transnacionais." },
-  { title: "Compromisso Social", text: "Consultoria jurídica gratuita para comunidades carentes e apoio a projectos educacionais." },
-]
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale()
+  return { title: locale === "en" ? "About Us" : "Sobre Nós" }
+}
 
 export default async function AboutPage() {
-  const s = await getSettings()
+  const locale = await getLocale()
+  const copy = getCopy(locale)
+  const s = await getSettings(locale)
+  const differentials = [
+    { title: copy.about.team, text: copy.about.descriptions.team },
+    { title: copy.about.technology, text: copy.about.descriptions.technology },
+    { title: copy.about.personal, text: copy.about.descriptions.personal },
+    { title: copy.about.national, text: copy.about.descriptions.national },
+    { title: copy.about.international, text: copy.about.descriptions.international },
+    { title: copy.about.social, text: copy.about.descriptions.social },
+  ]
   return (
     <>
-      <PageHero eyebrow="Sobre" title={s.about_title} subtitle={s.about_paragraph} />
+      <PageHero eyebrow={copy.about.eyebrow} title={s.about_title} subtitle={s.about_paragraph} />
 
       <section className="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:grid-cols-2 md:items-center">
         <div>
-          <SectionHeading eyebrow="A nossa história" title="Fundada em Julho de 2020" />
+          <SectionHeading eyebrow={copy.about.story} title={copy.about.founded} />
           <div className="flex flex-col gap-4 leading-relaxed text-muted-foreground">
             {[s.history_p1, s.history_p2, s.history_p3].filter(Boolean).map((p, i) => (
               <p key={i} className="text-pretty">
@@ -32,24 +38,24 @@ export default async function AboutPage() {
             ))}
           </div>
         </div>
-        <img src="/images/about.png" alt="Equipa da Egas Viegas em reunião" className="aspect-[4/5] w-full rounded-xl object-cover" />
+        <img src="/images/about.png" alt={locale === "en" ? "Egas Viegas team in a meeting" : "Equipa da Egas Viegas em reunião"} className="aspect-[4/5] w-full rounded-xl object-cover" />
       </section>
 
       <section className="bg-secondary py-20">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 md:grid-cols-3">
           <div className="rounded-xl border bg-card p-7">
             <Target className="size-7 text-gold-ink" aria-hidden />
-            <h2 className="mt-4 font-serif text-2xl font-semibold">Missão</h2>
+            <h2 className="mt-4 font-serif text-2xl font-semibold">{copy.about.mission}</h2>
             <p className="mt-2 leading-relaxed text-muted-foreground">{s.mission}</p>
           </div>
           <div className="rounded-xl border bg-card p-7">
             <Eye className="size-7 text-gold-ink" aria-hidden />
-            <h2 className="mt-4 font-serif text-2xl font-semibold">Visão</h2>
+            <h2 className="mt-4 font-serif text-2xl font-semibold">{copy.about.vision}</h2>
             <p className="mt-2 leading-relaxed text-muted-foreground">{s.vision}</p>
           </div>
           <div className="rounded-xl border bg-card p-7">
             <Scale className="size-7 text-gold-ink" aria-hidden />
-            <h2 className="mt-4 font-serif text-2xl font-semibold">Valores</h2>
+            <h2 className="mt-4 font-serif text-2xl font-semibold">{copy.about.values}</h2>
             <ul className="mt-2 flex flex-wrap gap-2">
               {s.values.map((v) => (
                 <li key={v} className="rounded-full bg-secondary px-3 py-1 text-sm">
@@ -62,9 +68,9 @@ export default async function AboutPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-20">
-        <SectionHeading eyebrow="Diferenciais" title="Porque escolher a EV" />
+        <SectionHeading eyebrow={copy.about.differentiators} title={copy.about.whyChoose} />
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {DIFFERENTIALS.map((d, i) => (
+          {differentials.map((d, i) => (
             <div key={d.title}>
               <span className="font-serif text-3xl text-accent">{String(i + 1).padStart(2, "0")}</span>
               <h3 className="mt-2 font-serif text-xl font-semibold">{d.title}</h3>
