@@ -13,6 +13,11 @@ export const metadata: Metadata = {
     template: "%s | Egas Viegas Advogados",
   },
   description: "Onde o seu interesse está em primeiro lugar. Escritório de advocacia em Luanda e no Bié, Angola.",
+  icons: {
+    icon: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/evlogo1.jfif-dlF5HLMabuT5alyVWTMgjo4AbualZk.jpeg",
+    shortcut: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/evlogo1.jfif-dlF5HLMabuT5alyVWTMgjo4AbualZk.jpeg",
+    apple: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/evlogo1.jfif-dlF5HLMabuT5alyVWTMgjo4AbualZk.jpeg",
+  },
   verification: { google: "2swuBHVfQ3vxyhw4cJ-ML5NtnyETGKFLP208Zzci-2Y" },
   generator: "v0.app",
 }
