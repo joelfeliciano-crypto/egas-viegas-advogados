@@ -1,5 +1,6 @@
-import { collection, doc, getDoc, getDocs } from "firebase/firestore/lite"
-import { db } from "./firebase"
+import { eq } from "drizzle-orm"
+import { db } from "./db"
+import { siteContent, siteSettings } from "./db-schema"
 import {
   defaultAreas,
   defaultArticles,
@@ -11,46 +12,24 @@ import {
 } from "./defaults"
 import type { Area, Article, SiteSettings, TeamMember, Testimonial, Thought, Video } from "./types"
 
-export function serialize(value: unknown): unknown {
-  if (value && typeof value === "object") {
-    if ("toMillis" in value && typeof (value as { toMillis: unknown }).toMillis === "function") {
-      return (value as { toMillis: () => number }).toMillis()
-    }
-    if (Array.isArray(value)) return value.map(serialize)
-    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, serialize(v)]))
-  }
-  return value
-}
-
 const byOrder = (a: { order?: number }, b: { order?: number }) => (a.order ?? 999) - (b.order ?? 999)
 
 async function getCollection<T extends { id: string; order?: number }>(
   name: string,
   fallback: Omit<T, "id">[],
 ): Promise<T[]> {
-  const withIds = () => fallback.map((item, i) => ({ ...item, id: `default-${i}` }) as T)
-  try {
-    const snap = await getDocs(collection(db, name))
-    if (snap.empty) return withIds()
-    return snap.docs.map((d) => ({ ...(serialize(d.data()) as object), id: d.id }) as T).sort(byOrder)
-  } catch (error) {
-    console.error(`[firestore] Falha ao ler "${name}":`, error)
-    return withIds()
-  }
+  const rows = await db.select({ id: siteContent.id, data: siteContent.data }).from(siteContent).where(eq(siteContent.collection, name))
+  if (!rows.length) return fallback.map((item, index) => ({ ...item, id: `default-${index}` }) as T).sort(byOrder)
+  return rows.map((row) => ({ ...row.data, id: row.id }) as T).sort(byOrder)
 }
 
 export async function getSettings(): Promise<SiteSettings> {
-  try {
-    const snap = await getDoc(doc(db, "website_content", "general"))
-    if (!snap.exists()) return defaultSettings
-    return { ...defaultSettings, ...(serialize(snap.data()) as Partial<SiteSettings>) }
-  } catch (error) {
-    console.error("[firestore] Falha ao ler definições:", error)
-    return defaultSettings
-  }
+  const [row] = await db.select({ data: siteSettings.data }).from(siteSettings).where(eq(siteSettings.id, "general")).limit(1)
+  return { ...defaultSettings, ...(row?.data as Partial<SiteSettings> | undefined) }
 }
 
 export const getAreas = () => getCollection<Area>("areas", defaultAreas)
+
 const LEGACY_SECTIONS: Record<string, TeamMember["section"]> = {
   fundador: "founders",
   administrativo: "partners",
@@ -58,29 +37,27 @@ const LEGACY_SECTIONS: Record<string, TeamMember["section"]> = {
 }
 
 export async function getTeam(): Promise<TeamMember[]> {
-  const rows = await getCollection<TeamMember & { categoria?: string; imgUrl?: string; descricao?: string }>(
-    "membros",
-    defaultTeam,
-  )
-  return rows.map(({ categoria, imgUrl, descricao, ...m }) => {
-    const raw = m.section ?? categoria ?? "advogados"
+  const rows = await getCollection<TeamMember & { categoria?: string; imgUrl?: string; descricao?: string }>("membros", defaultTeam)
+  return rows.map(({ categoria, imgUrl, descricao, ...member }) => {
+    const raw = member.section ?? categoria ?? "advogados"
     return {
-      ...m,
+      ...member,
       section: LEGACY_SECTIONS[raw] ?? raw,
-      img: m.img || imgUrl || "",
-      desc: m.desc || descricao || "",
-      especialidades: Array.isArray(m.especialidades) ? m.especialidades : [],
+      img: member.img || imgUrl || "",
+      desc: member.desc || descricao || "",
+      especialidades: Array.isArray(member.especialidades) ? member.especialidades : [],
     }
   })
 }
 
 export async function getArticles(): Promise<Article[]> {
   const rows = await getCollection<Omit<Article, "data"> & { id: string; data: string | number }>("artigos", defaultArticles)
-  return rows.map((a) => ({
-    ...a,
-    data: typeof a.data === "number" ? new Date(a.data).toLocaleDateString("pt-PT") : (a.data ?? ""),
+  return rows.map((article) => ({
+    ...article,
+    data: typeof article.data === "number" ? new Date(article.data).toLocaleDateString("pt-PT") : (article.data ?? ""),
   }))
 }
+
 export const getVideos = () => getCollection<Video>("videos", defaultVideos)
 export const getThoughts = () => getCollection<Thought>("thoughts", defaultThoughts)
 export const getTestimonials = () => getCollection<Testimonial>("testimonials", defaultTestimonials)

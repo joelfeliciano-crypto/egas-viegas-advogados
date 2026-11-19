@@ -26,7 +26,21 @@ export default async function HomePage() {
   return (
     <>
       <section className="relative isolate overflow-hidden bg-primary text-primary-foreground">
-        <img src="/images/hero.png" alt="" className="absolute inset-0 -z-10 size-full object-cover opacity-35" />
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/images/hero.png"
+          aria-hidden="true"
+          className="absolute inset-0 -z-10 size-full object-cover opacity-35"
+        >
+          <source
+            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/backgroundv1-5dehrN5UfoZIPPgz3bpi1UyenAMn5e.mp4"
+            type="video/mp4"
+          />
+        </video>
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-primary via-primary/80 to-transparent" />
         <div className="mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-4 py-24">
           <p className="mb-4 text-xs uppercase tracking-[0.35em] text-accent">EV - Sociedade de Advogados, RL</p>

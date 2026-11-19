@@ -3,50 +3,24 @@
 import Link from "next/link"
 import { useState } from "react"
 import useSWR from "swr"
-import { collection, doc, getDoc, getDocs, query, setDoc, where, writeBatch, type Query } from "firebase/firestore/lite"
-
-const getCountFromServer = async (q: Query) => {
-  const snap = await getDocs(q)
-  return { data: () => ({ count: snap.size }) }
-}
+import { getAdminOverview, seedDefaultContent } from "@/lib/admin-actions"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { COLLECTIONS } from "@/lib/admin-config"
-import { defaultSettings } from "@/lib/defaults"
-import { db } from "@/lib/firebase"
-
-async function loadCounts() {
-  const names = [...Object.keys(COLLECTIONS), "contacts"]
-  const counts = await Promise.all(names.map((n) => getCountFromServer(collection(db, n)).then((s) => s.data().count)))
-  const unread = await getCountFromServer(query(collection(db, "contacts"), where("read", "==", false)))
-  const settings = await getDoc(doc(db, "website_content", "general"))
-  return {
-    counts: Object.fromEntries(names.map((n, i) => [n, counts[i]])) as Record<string, number>,
-    unread: unread.data().count,
-    hasSettings: settings.exists(),
-  }
-}
 
 export function Overview() {
-  const { data, error, mutate } = useSWR("overview", loadCounts)
+  const { data, error, mutate } = useSWR("overview", getAdminOverview)
   const [seeding, setSeeding] = useState(false)
 
   async function seed() {
     if (!data) return
     setSeeding(true)
     try {
-      if (!data.hasSettings) await setDoc(doc(db, "website_content", "general"), defaultSettings)
-      for (const config of Object.values(COLLECTIONS)) {
-        if (data.counts[config.name] > 0 || !config.seed?.length) continue
-        const batch = writeBatch(db)
-        config.seed.forEach((item) => batch.set(doc(collection(db, config.name)), item))
-        await batch.commit()
-      }
-      toast.success("Conteúdo original importado para o Firebase.")
+      await seedDefaultContent()
+      toast.success("Conteúdo original preparado no Neon.")
       mutate()
-    } catch (err) {
-      console.error(err)
-      toast.error("Erro ao importar. Verifique as regras do Firestore.")
+    } catch {
+      toast.error("Não foi possível preparar o conteúdo. Tente novamente.")
     } finally {
       setSeeding(false)
     }
@@ -58,7 +32,7 @@ export function Overview() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="font-serif text-3xl font-semibold">Visão Geral</h1>
-        <p className="text-sm text-muted-foreground">Gerir todo o conteúdo do site, ligado em tempo real ao Firebase.</p>
+        <p className="text-sm text-muted-foreground">Gerir todo o conteúdo do site, armazenado no Neon.</p>
       </div>
 
       {error && <p className="text-sm text-destructive">Erro ao carregar: {String(error.message ?? error)}</p>}
@@ -68,7 +42,7 @@ export function Overview() {
           <div>
             <h2 className="font-serif text-xl font-semibold">Importar conteúdo original</h2>
             <p className="text-sm text-muted-foreground">
-              Algumas secções ainda não existem no Firebase. Importe o conteúdo do site original para poder editá-lo.
+              O conteúdo ainda não foi inicializado no Neon. Importe os dados predefinidos do site para poder editá-los.
             </p>
           </div>
           <Button onClick={seed} disabled={seeding}>
@@ -81,7 +55,7 @@ export function Overview() {
         <Link href="/admin/mensagens" className="rounded-xl border bg-primary p-6 text-primary-foreground hover:opacity-95">
           <p className="text-sm text-primary-foreground/70">Mensagens por ler</p>
           <p className="font-serif text-4xl text-accent">{data?.unread ?? "–"}</p>
-          <p className="mt-1 text-xs text-primary-foreground/60">{data?.counts.contacts ?? 0} no total</p>
+          <p className="mt-1 text-xs text-primary-foreground/60">{data?.totalMessages ?? 0} no total</p>
         </Link>
         {Object.values(COLLECTIONS).map((c) => (
           <Link key={c.name} href={`/admin/${c.name}`} className="rounded-xl border bg-card p-6 hover:border-primary">

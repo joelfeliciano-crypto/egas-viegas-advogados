@@ -2,13 +2,12 @@
 
 import { useState } from "react"
 import useSWR from "swr"
-import { doc, getDoc, setDoc } from "firebase/firestore/lite"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { FieldInput } from "@/components/admin/field-input"
 import type { Field } from "@/lib/admin-config"
 import { defaultSettings } from "@/lib/defaults"
-import { db } from "@/lib/firebase"
+import { getAdminSettings, saveAdminSettings } from "@/lib/admin-actions"
 import type { SiteSettings } from "@/lib/types"
 
 const SECTIONS: { title: string; fields: Field[] }[] = [
@@ -78,11 +77,6 @@ function fromForm(v: FormValues): SiteSettings {
   return out as SiteSettings
 }
 
-async function loadSettings() {
-  const snap = await getDoc(doc(db, "website_content", "general"))
-  return { ...defaultSettings, ...(snap.exists() ? (snap.data() as Partial<SiteSettings>) : {}) }
-}
-
 function SettingsForm({ initial }: { initial: SiteSettings }) {
   const [values, setValues] = useState<FormValues>(() => toForm(initial))
   const [saving, setSaving] = useState(false)
@@ -91,11 +85,10 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
     e.preventDefault()
     setSaving(true)
     try {
-      await setDoc(doc(db, "website_content", "general"), fromForm(values))
+      await saveAdminSettings(fromForm(values))
       toast.success("Conteúdo do site actualizado.")
-    } catch (err) {
-      console.error(err)
-      toast.error("Erro ao guardar. Verifique as permissões do Firestore.")
+    } catch {
+      toast.error("Erro ao guardar as definições. Tente novamente.")
     } finally {
       setSaving(false)
     }
@@ -125,7 +118,7 @@ function SettingsForm({ initial }: { initial: SiteSettings }) {
 }
 
 export default function SettingsPage() {
-  const { data, error } = useSWR("settings", loadSettings, { revalidateOnFocus: false })
+  const { data, error } = useSWR("settings", getAdminSettings, { revalidateOnFocus: false })
   return (
     <div className="flex flex-col gap-6">
       <div>

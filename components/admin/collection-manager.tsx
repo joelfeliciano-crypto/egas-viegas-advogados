@@ -2,26 +2,17 @@
 
 import { useState } from "react"
 import useSWR from "swr"
-import { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp, updateDoc, type DocumentData } from "firebase/firestore/lite"
 import { Pencil, Plus, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import type { CollectionConfig } from "@/lib/admin-config"
-import { serialize } from "@/lib/data"
-import { db } from "@/lib/firebase"
+import { deleteCollectionItem, listCollection, saveCollectionItem } from "@/lib/admin-actions"
 import { FieldInput, normalize } from "./field-input"
 
 type Row = Record<string, unknown> & { id: string }
 
-export async function fetchCollection(name: string): Promise<Row[]> {
-  const snap = await getDocs(collection(db, name))
-  return snap.docs
-    .map((d) => ({ ...(serialize(d.data()) as object), id: d.id }) as Row)
-    .sort((a, b) => Number(a.order ?? 999) - Number(b.order ?? 999))
-}
-
 export function CollectionManager({ config }: { config: CollectionConfig }) {
-  const { data, error, isLoading, mutate } = useSWR(["collection", config.name], () => fetchCollection(config.name))
+  const { data, error, isLoading, mutate } = useSWR(["collection", config.name], () => listCollection(config.name))
   const [editing, setEditing] = useState<Row | "new" | null>(null)
   const [values, setValues] = useState<Record<string, unknown>>({})
   const [saving, setSaving] = useState(false)
@@ -36,14 +27,13 @@ export function CollectionManager({ config }: { config: CollectionConfig }) {
     setSaving(true)
     const payload = normalize(config.fields, values)
     try {
-      if (editing === "new") await addDoc(collection(db, config.name), { ...payload, timestamp: serverTimestamp() })
-      else if (editing) await updateDoc(doc(db, config.name, editing.id), payload as DocumentData)
+      if (editing === "new") await saveCollectionItem(config.name, null, payload)
+      else if (editing) await saveCollectionItem(config.name, editing.id, payload)
       toast.success("Guardado com sucesso.")
       setEditing(null)
       mutate()
-    } catch (err) {
-      console.error(err)
-      toast.error("Erro ao guardar. Verifique as permissões do Firestore.")
+    } catch {
+      toast.error("Erro ao guardar o conteúdo. Tente novamente.")
     } finally {
       setSaving(false)
     }
@@ -52,7 +42,7 @@ export function CollectionManager({ config }: { config: CollectionConfig }) {
   async function remove(row: Row) {
     if (!confirm(`Eliminar "${String(row[config.titleField] ?? "")}"?`)) return
     try {
-      await deleteDoc(doc(db, config.name, row.id))
+      await deleteCollectionItem(config.name, row.id)
       toast.success("Eliminado.")
       mutate()
     } catch (err) {
@@ -98,7 +88,7 @@ export function CollectionManager({ config }: { config: CollectionConfig }) {
       {isLoading && <p className="text-sm text-muted-foreground">A carregar...</p>}
       {data && data.length === 0 && (
         <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
-          Ainda não há registos. O site está a mostrar o conteúdo original. Use &quot;Importar conteúdo original&quot; na Visão Geral para editá-lo aqui.
+          Ainda não há registos. O site está a mostrar o conteúdo de demonstração. Use &quot;Importar conteúdo original&quot; na Visão Geral para editá-lo aqui.
         </p>
       )}
 
