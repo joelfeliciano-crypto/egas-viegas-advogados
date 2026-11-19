@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Eye, Scale, Target } from "lucide-react"
 import { PageHero, SectionHeading } from "@/components/site/page-hero"
+import { AboutSlideshow } from "@/components/site/about-slideshow"
 import { Counter } from "@/components/site/motion"
 import { getSettings } from "@/lib/data"
 import { getCopy } from "@/lib/i18n"
@@ -38,7 +39,7 @@ export default async function AboutPage() {
             ))}
           </div>
         </div>
-        <img src="/images/about.png" alt={locale === "en" ? "Egas Viegas team in a meeting" : "Equipa da Egas Viegas em reunião"} className="aspect-[4/5] w-full rounded-xl object-cover" />
+        <AboutSlideshow locale={locale} />
       </section>
 
       <section className="bg-secondary py-20">
